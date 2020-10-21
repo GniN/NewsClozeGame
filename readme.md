@@ -10,3 +10,7 @@ yarn
 ```
 node index.js
 ```
+or
+```
+node index.js searchQueryText
+```

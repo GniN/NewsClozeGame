@@ -1,4 +1,9 @@
-const searchQuery = 'YOUR QUERY'
+let searchQuery = 'YOUR QUERY'
+
+var args = process.argv.slice(2);
+if (args.length > 0) {
+    searchQuery = args[0]
+}
 const boardConfigs = [
     {
         name: `Gossiping`,
@@ -6,6 +11,10 @@ const boardConfigs = [
     },
     {
         name: `C_Chat`,
+        age18: true
+    },
+    {
+        name: `ALLPOST`,
         age18: true
     }
 ]
@@ -31,6 +40,21 @@ const puppeteer = require('puppeteer');
 
 
     let titles = [];
+
+    await page.goto(yahooNews, {
+        waitUntil: 'domcontentloaded'
+    })
+
+    titles.push(`-----------------yahoo-------------------`)
+    yahooPages = await page.evaluate(() => {
+        const rs = []
+        document.querySelectorAll(`.StreamMegaItem a`).forEach(titleLinkElement => {
+            rs.push(titleLinkElement.innerText)
+        })
+        return rs
+    })
+    titles.push(...yahooPages.slice(0, 20))
+    titles = titles.filter(t => t.includes(searchQuery))
     
     for(let i = 0; i < boardConfigs.length; i++) {
         const board = boardConfigs[i]
@@ -64,22 +88,7 @@ const puppeteer = require('puppeteer');
 
     }
 
-    await page.goto(yahooNews, {
-        waitUntil: 'domcontentloaded'
-    })
-
-    titles.push(`-----------------yahoo-------------------`)
-    yahooPages = await page.evaluate(() => {
-        const rs = []
-        document.querySelectorAll(`.StreamMegaItem a`).forEach(titleLinkElement => {
-            rs.push(titleLinkElement.innerText)
-        })
-        return rs
-    })
-    titles.push(...yahooPages.slice(0, 10))
-    titles.filter(t => t.includes(searchQuery))
-
-    titles = titles.map(t => t.replace(searchQuery, 'O'.repeat(searchQuery.length)))
+    titles = titles.map(t => t.replace(searchQuery, '○'.repeat(searchQuery.length)))
 
     titles.forEach((t) => {
         console.log(t)
